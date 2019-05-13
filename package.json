@@ -1,0 +1,15 @@
+{
+  "name": "blossom",
+  "version": "0.0.9",
+  "description": "A simple bloom-filter implementation in JS, a project @geekskool",
+  "main": "./app.js",
+  "repository": "github.com:mkp7/blossom",
+  "author": "Mehulkumar <m3hul.g4m3r@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "murmurhash3": "^0.4.2"
+  }
+}

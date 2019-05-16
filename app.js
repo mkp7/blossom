@@ -10,24 +10,38 @@ function hash (key, seed) {
   // return
 }
 
-function add (bitArr, key, hashCount) {
+function add (bitArr, key, hashCount, cb) {
   for (let i = 0; i < hashCount; i++) {
-    const bitIndex = (hash(key, i) % 100000 * 8) - 1
-    const byteIndex = parseInt(bitIndex / 8)
-    const byte = bitArr[byteIndex]
-    bitArr.writeInt8(byte | (1 << (7 - (bitIndex % 8))), byteIndex)
+    mmh3.murmur32(key, i, function (err, hashValue) {
+      if (err) throw err
+      const bitIndex = (hashValue % 100000 * 8) - 1
+      const byteIndex = parseInt(bitIndex / 8)
+      const byte = bitArr[byteIndex]
+      const bitVal = (1 << (7 - (bitIndex % 8)))
+      bitArr.writeInt8(byte | bitVal, byteIndex)
+      if (i === hashCount - 1) {
+        console.log('added')
+        cb()
+      }
+    })
   }
-  return true
 }
 
 function check (bitArr, key, hashCount) {
   for (let i = 0; i < hashCount; i++) {
-    const bitIndex = (hash(key, i) % 100000 * 8) - 1
-    const byteIndex = parseInt(bitIndex / 8)
-    const byte = bitArr[byteIndex]
-    if ((byte & (1 << (7 - (bitIndex % 8)))) === 0) {
-      return false
-    }
+    mmh3.murmur32(key, i, function (err, hashValue) {
+      if (err) throw err
+      const bitIndex = (hashValue % 100000 * 8) - 1
+      const byteIndex = parseInt(bitIndex / 8)
+      const byte = bitArr[byteIndex]
+      const bitVal = (1 << (7 - (bitIndex % 8)))
+      if ((byte & bitVal) === 0) {
+        console.log(`${key} is not present`)
+      } else {
+        console.log(`${key} is present`)
+      }
+    })
   }
-  return true
 }
+
+add(bitArr, 'mac', hashCount, () => check(bitArr, 'ma', hashCount))
